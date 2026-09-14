@@ -107,7 +107,7 @@ def to_tile(im, anchor="top"):
     sw, sh = im.size
     if anchor == "top":
         # north edge: full width, band at top (~12px of foam+sand)
-        nh = max(8, min(14, int(round(TS * sh / max(1, sw)))))
+        nh = max(10, min(16, int(round(TS * sh / max(1, sw)))))
         band = im.resize((TS, nh), Image.Resampling.LANCZOS)
         out = Image.new("RGBA", (TS, TS), (0, 0, 0, 0))
         out.paste(band, (0, 0), band)

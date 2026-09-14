@@ -2180,6 +2180,16 @@ function render(){
       if(w.s&&w.e)ctx.drawImage(so[2],dx,dy);
       if(w.s&&w.w)ctx.drawImage(so[3],dx,dy);
     }
+    ctx.fillStyle='#eef8ff';
+    if(w.n)ctx.fillRect(dx,dy,TS,1);
+    if(w.e)ctx.fillRect(dx+TS-1,dy,1,TS);
+    if(w.s)ctx.fillRect(dx,dy+TS-1,TS,1);
+    if(w.w)ctx.fillRect(dx,dy,1,TS);
+    ctx.fillStyle='rgba(160,220,230,.75)';
+    if(w.n)ctx.fillRect(dx,dy+1,TS,1);
+    if(w.e)ctx.fillRect(dx+TS-2,dy,1,TS);
+    if(w.s)ctx.fillRect(dx,dy+TS-2,TS,1);
+    if(w.w)ctx.fillRect(dx+1,dy,1,TS);
   }
   if(TILES.tint){ctx.fillStyle=TILES.tint;ctx.fillRect(0,0,VW,VH);}
   ctx.drawImage(getVig(),0,0);

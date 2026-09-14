@@ -233,6 +233,7 @@ const AI_ASSETS={
   tile_sand:'assets/tile_sand.png',tile_jungle:'assets/tile_jungle.png',tile_stone:'assets/tile_stone.png',
   tile_boss:'assets/tile_boss.png',tile_cave:'assets/tile_cave.png',tile_ruins:'assets/tile_ruins.png',
   tile_wall:'assets/tile_wall.png',tile_water:'assets/tile_water.png',tile_water2:'assets/tile_water2.png',
+  shore_edge:'assets/shore_edge.png',shore_outer:'assets/shore_outer.png',wet_edge:'assets/wet_edge.png',
   bg_title:'assets/bg_title.jpg',
   port_prospero:'assets/port_prospero.png',port_miranda:'assets/port_miranda.png',port_ariel:'assets/port_ariel.png',
   port_caliban:'assets/port_caliban.png',port_ferdinando:'assets/port_ferdinando.png',port_antonio:'assets/port_antonio.png',
@@ -243,6 +244,7 @@ const AI_ASSETS={
   wc_beast:'assets/wc_beast.png',wc_wisp:'assets/wc_wisp.png',wc_mutin:'assets/wc_mutin.png'
 };
 const AI_SPR={},AI_IMG={},AI_PORT={},AI_ANIM={};
+const SHORE={edge:null,outer:null,wet:null};
 const SPRITE_KEYS=new Set(['portal','relic','decor_jungle','decor_stone']);
 function packSprite(img){
   const c=document.createElement('canvas');c.width=img.naturalWidth||img.width;c.height=img.naturalHeight||img.height;
@@ -315,7 +317,31 @@ function loadAI(){
       const g=sliceGrid(sheet,4,4);
       AI_ANIM[n]={down:g[0],up:g[1],left:g[2],right:g[3],front:g[0],back:g[1]};
     }
+    initShore();
   });
+}
+function rotCW(src){
+  const w=src.width||src.naturalWidth,h=src.height||src.naturalHeight;
+  const c=document.createElement('canvas');c.width=h;c.height=w;
+  const g=c.getContext('2d');g.imageSmoothingEnabled=false;
+  g.translate(h,0);g.rotate(Math.PI/2);g.drawImage(src,0,0);
+  return c;
+}
+function rots4(src){
+  const a=[src];
+  for(let i=0;i<3;i++)a.push(rotCW(a[i]));
+  return a;
+}
+function initShore(){
+  const pack=k=>{
+    const im=AI_IMG[k];
+    if(!im)return null;
+    return packSprite(im).c;
+  };
+  const edge=pack('shore_edge'),outer=pack('shore_outer'),wet=pack('wet_edge');
+  SHORE.edge=edge?rots4(edge):null;
+  SHORE.outer=outer?rots4(outer):null;
+  SHORE.wet=wet?rots4(wet):null;
 }
 function RNG(seed){
   let a=(seed|0)||1;
@@ -953,6 +979,7 @@ function buildTiles(theme){
   }
   T.tint=THEME_TINT[theme]||'rgba(0,0,0,.15)';
   T.glow=THEME_GLOW[theme]||'#8ef4ff';
+  T.wetLand=theme==='shore';
   TILE_CACHE[theme]=T;
   return T;
 }
@@ -1239,6 +1266,10 @@ function freeTiles(m,vis){
   return out;
 }
 function isWallT(x,y){if(x<0||y<0||x>=MAPW||y>=MAPH)return true;return G.map[y*MAPW+x]===T_WALL;}
+function mapT(x,y){if(x<0||y<0||x>=MAPW||y>=MAPH)return T_WALL;return G.map[y*MAPW+x];}
+function isWaterT(x,y){return mapT(x,y)===T_WATER;}
+function isSolidT(x,y){return mapT(x,y)!==T_WATER;}
+function isGroundT(x,y){const t=mapT(x,y);return t===T_FLOOR||t===T_DECOR;}
 function buildMapCanvas(){
   const c=document.createElement('canvas');c.width=MAPW*TS;c.height=MAPH*TS+16;
   const g=c.getContext('2d');g.imageSmoothingEnabled=false;
@@ -1259,7 +1290,16 @@ function buildMapCanvas(){
     if(t===T_DECOR&&TILES.decor){
       g.drawImage(TILES.decor,px+((x*13)%6),py+8+((y*7)%6));
     }
-    if(t===T_WATER)G.water.push({x:px,y:py});
+    if((t===T_FLOOR||t===T_DECOR)&&SHORE.wet&&TILES.wetLand){
+      if(isWaterT(x,y+1))g.drawImage(SHORE.wet[0],px,py);
+      if(isWaterT(x-1,y))g.drawImage(SHORE.wet[1],px,py);
+      if(isWaterT(x,y-1))g.drawImage(SHORE.wet[2],px,py);
+      if(isWaterT(x+1,y))g.drawImage(SHORE.wet[3],px,py);
+    }
+    if(t===T_WATER){
+      const n=isSolidT(x,y-1),e=isSolidT(x+1,y),s=isSolidT(x,y+1),w=isSolidT(x-1,y);
+      G.water.push({x:px,y:py,n,e,s,w});
+    }
   }
   for(let y=0;y<MAPH;y++)for(let x=0;x<MAPW;x++){
     if(G.map[y*MAPW+x]!==T_WALL)continue;
@@ -2120,12 +2160,26 @@ function render(){
   ctx.clearRect(0,0,CW,CH);
   ctx.drawImage(G.mapCanvas,cx,cy,VW,VH,0,0,VW,VH);
   const wf=TILES.water[Math.floor(G.t*5)%TILES.water.length];
+  const se=SHORE.edge,so=SHORE.outer;
   for(const w of G.water){
     if(w.x<cx-TS||w.x>cx+VW||w.y<cy-TS||w.y>cy+VH)continue;
-    ctx.drawImage(wf,w.x-cx,w.y-cy,TS,TS);
+    const dx=w.x-cx,dy=w.y-cy;
+    ctx.drawImage(wf,dx,dy,TS,TS);
     ctx.globalAlpha=.18+.1*Math.sin(G.t*3+w.x*.01);
-    ctx.fillStyle='#8fd8e8';ctx.fillRect(w.x-cx,w.y-cy+((Math.floor(G.t*6+w.x)%TS)),TS,1);
+    ctx.fillStyle='#8fd8e8';ctx.fillRect(dx,dy+((Math.floor(G.t*6+w.x)%TS)),TS,1);
     ctx.globalAlpha=1;
+    if(se){
+      if(w.n)ctx.drawImage(se[0],dx,dy);
+      if(w.e)ctx.drawImage(se[1],dx,dy);
+      if(w.s)ctx.drawImage(se[2],dx,dy);
+      if(w.w)ctx.drawImage(se[3],dx,dy);
+    }
+    if(so){
+      if(w.n&&w.w)ctx.drawImage(so[0],dx,dy);
+      if(w.n&&w.e)ctx.drawImage(so[1],dx,dy);
+      if(w.s&&w.e)ctx.drawImage(so[2],dx,dy);
+      if(w.s&&w.w)ctx.drawImage(so[3],dx,dy);
+    }
   }
   if(TILES.tint){ctx.fillStyle=TILES.tint;ctx.fillRect(0,0,VW,VH);}
   ctx.drawImage(getVig(),0,0);

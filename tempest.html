@@ -295,6 +295,12 @@ function dirFromAngle(a){
   if(d<Math.PI*1.25)return 'left';
   return 'up';
 }
+function bodyY(e){return e.y-(e.sh||40)*0.38;}
+function muzzleOf(e,a,dist){
+  dist=dist==null?15:dist;
+  const y=bodyY(e);
+  return {x:e.x+Math.cos(a)*dist,y:y+Math.sin(a)*dist};
+}
 function loadAI(){
   const urls=Object.keys(AI_ASSETS);
   return Promise.all(urls.map(k=>new Promise(res=>{
@@ -510,7 +516,7 @@ miranda:{key:'miranda',name:'MIRANDA',title:"Figlia dell'isola, meraviglia",role
  last:'Ah, povero spirito... non volevo che finisse così. Che il cielo abbia pietà di noi.',
  lasten:'I have suffered with those that I saw suffer. (I.2)',
  banter:["«Ho sofferto con quelli che ho visto soffrire.»","«Che mondo nuovo è questo!»","«Abbi pietà: anche loro hanno paura.»","«Il cielo ci guarda, ne sono certa.»"],
- spr:{body:'dress',legs:'skirt',head:'long',weapon:'dagger'},
+ spr:{body:'dress',legs:'skirt',head:'long',weapon:'wand'},
  c:{main:'#8fb082',main2:'#dfe8d8',main3:'#f9fff4',dark:'#6b8a60',trim:'#f2c14e',skin:'#f0c09a',skinD:'#c08f68',hair:'#43291a',eye:'#2a1a2a',gem:'#fff6d0',boot:'#6b4a2a'},
  shot:{col:'#fff6d0',col2:'#f2c14e',r:2,kind:'thread'}},
 
@@ -529,7 +535,7 @@ ariel:{key:'ariel',name:'ARIEL',title:"Spirito dell'aria, servo a metà",role:'S
  last:"Libertà... era tutto ciò che chiedevo. Va': l'aria è tua, e io sono vento.",
  lasten:'Where the bee sucks, there suck I. (V.1)',
  banter:["«Dove succhia l'ape, succhio anch'io.»","«L'inferno è vuoto, e tutti i diavoli sono qui.»","«Sento la tempesta nelle ossa che non ho.»","«Canti tu? Io canto meglio.»"],
- spr:{body:'tunic',legs:'wisp',head:'wind',weapon:'wind',wings:true},
+ spr:{body:'tunic',legs:'wisp',head:'wind',weapon:'wand',wings:true},
  c:{main:'#6fb6de',main2:'#bfe9ff',main3:'#eafaff',dark:'#3f80a8',trim:'#f2e6a0',skin:'#dff2ff',skinD:'#a8d4ea',hair:'#9fd8f0',eye:'#0e3a52',gem:'#ffffff',boot:'#6fb6de'},
  shot:{col:'#eafaff',col2:'#9fd8f0',r:2,kind:'dart'}},
 
@@ -548,7 +554,7 @@ caliban:{key:'caliban',name:'CALIBAN',title:'Il selvaggio, figlio di Sicorace',r
  last:"Sarò saggio d'ora in poi, e cercherò la grazia. Che triplice asino sono stato, a prendere quell'ubriaco per un dio!",
  lasten:"I'll be wise hereafter, and seek for grace. (V.1)",
  banter:["«Non temere: l'isola è piena di dolci arie.»","«Questa terra è mia di diritto.»","«Non pungermi, spirito!»","«Gratta... sì, proprio lì.»"],
- spr:{body:'bare',legs:'bare',head:'wild',weapon:'claw',hunch:true},
+ spr:{body:'bare',legs:'bare',head:'wild',weapon:'staff',hunch:true},
  c:{main:'#5c7a44',main2:'#7a9c58',main3:'#a8c87c',dark:'#3b5230',trim:'#8a6a3a',skin:'#6d8f52',skinD:'#4a6636',hair:'#1d1a16',eye:'#ffd23a',gem:'#c8ff6a',boot:'#4a3a24'},
  shot:{col:'#b09a78',col2:'#e0d0b0',r:4,kind:'rock'}},
 
@@ -566,7 +572,7 @@ ferdinando:{key:'ferdinando',name:'FERDINANDO',title:'Principe di Napoli',role:'
  last:"Che il mondo nuovo che ho sognato non sia fatto del tuo stesso acciaio... Addio.",
  lasten:'Full many a lady I have eyed with best regard. (I.2)',
  banter:["«Per l'onore di Napoli!»","«Il lavoro più duro mi è dolce, se guardo avanti.»","«Questa musica viene dall'aria, o dalla mia testa?»","«Non indietreggio: sono un principe.»"],
- spr:{body:'tunic',legs:'pants',head:'plume',weapon:'sword'},
+ spr:{body:'tunic',legs:'pants',head:'plume',weapon:'scepter'},
  c:{main:'#8a2436',main2:'#b83a4a',main3:'#e8808f',dark:'#571420',trim:'#f2c14e',skin:'#eab892',skinD:'#c08a62',hair:'#6b4a2a',eye:'#1b1030',gem:'#dfe4ee',boot:'#3a2a1c'},
  shot:{col:'#dfe4ee',col2:'#ffffff',r:3,kind:'dart'}},
 
@@ -584,7 +590,7 @@ antonio:{key:'antonio',name:'ANTONIO',title:'L\'usurpatore, fratello traditore',
  last:"La verità che dico... manca di gentilezza. Fa' quel che devi: il potere non chiede perdono.",
  lasten:"I'll do my best to obtain forgiveness. (V.1)",
  banter:["«Ciò che è mio, lo prendo.»","«Il silenzio è la lama migliore.»","«Non fidarti: neppure di me.»","«Un altro gradino, e la corona è mia.»"],
- spr:{body:'robe',legs:'robe',head:'wide',weapon:'rapier'},
+ spr:{body:'robe',legs:'robe',head:'wide',weapon:'wand'},
  c:{main:'#241c34',main2:'#3a2c50',main3:'#6a5688',dark:'#140f20',trim:'#a02030',skin:'#dca87e',skinD:'#a87850',hair:'#1a1418',eye:'#c8304a',gem:'#a02030',boot:'#1a1418'},
  shot:{col:'#ff6a7a',col2:'#ffd0d8',r:3,kind:'bolt'}},
 
@@ -602,7 +608,7 @@ trinculo:{key:'trinculo',name:'TRINCULO',title:'Il buffone sopravvissuto',role:'
  last:"Che cos'abbiamo qui, un uomo o un pesce?... Va bene: ho perso. Suona i sonagli, buffone.",
  lasten:'What have we here? a man or a fish? (II.2)',
  banter:["«Che cos'abbiamo qui: un uomo o un pesce?»","«Quando ero a casa, ero in un posto migliore.»","«Se piove, mi nascondo sotto il mostro.»","«Non sono un codardo: sono prudente.»"],
- spr:{body:'rag',legs:'pants',head:'jester',weapon:'bell'},
+ spr:{body:'rag',legs:'pants',head:'jester',weapon:'wand'},
  c:{main:'#c8a020',main2:'#e8c840',main3:'#ffe98a',dark:'#8a6a10',trim:'#c83a4a',skin:'#f0c09a',skinD:'#c08f68',hair:'#8a5a2a',eye:'#2a1a2a',gem:'#8ef4ff',boot:'#5a4020'},
  shot:{col:'#ffe98a',col2:'#ffffff',r:2,kind:'orb'}},
 
@@ -633,7 +639,7 @@ const FOES={
        shot:{col:'#c9a6ff',col2:'#f0e0ff',r:3,kind:'orb'}},
  mutin:{name:'AMMUTINATO',spr:'mutin',sw:28,sh:34,hp:44,spd:1.0,r:9,dmg:9,rate:1.65,pspeed:2.75,range:205,score:110,aggro:235,
        shot:{col:'#ffcf6a',col2:'#fff0c0',r:2,kind:'bolt'},
-       cfg:{body:'rag',legs:'pants',head:'bandana',weapon:'cutlass'},
+       cfg:{body:'rag',legs:'pants',head:'bandana',weapon:'bottle'},
        c:{main:'#6a5a44',main2:'#8a7654',main3:'#ab9874',dark:'#463a2a',trim:'#8a2a22',skin:'#9fb07a',skinD:'#74825a',hair:'#2a2018',eye:'#ff5a3a',gem:'#dfe4ee',boot:'#3a2c1c'}}
 };
 
@@ -803,9 +809,14 @@ function drawHumanoid(g,cfg,variant,frame,opts){
     EL(g,cx,7+bob,6,3,C.main);R(g,cx-6,8+bob,12,2,C.main2);R(g,cx-6,10+bob,12,1,C.dark);R(g,cx-5,10+bob,10,3,C.hair);
   }
   const ax=atk?2:0;
-  if(S.weapon==='staff'){
-    R(g,cx+9+ax,2,2,29,'#5c3f22');R(g,cx+9+ax,2,1,29,'#8a6a3a');
+  if(S.weapon==='staff'||S.weapon==='scepter'){
+    const wood=S.weapon==='scepter'?'#d4b44a':'#5c3f22';
+    const wood2=S.weapon==='scepter'?'#ffe14a':'#8a6a3a';
+    R(g,cx+9+ax,2,2,29,wood);R(g,cx+9+ax,2,1,29,wood2);
     EL(g,cx+10+ax,3,4,4,shade(C.gem,.7));EL(g,cx+10+ax,3,3,3,C.gem);R(g,cx+10+ax,2,1,1,'#ffffff');
+  }else if(S.weapon==='wand'){
+    R(g,cx+10+ax,8,2,22,'#c8d0dc');R(g,cx+10+ax,8,1,22,'#ffffff');
+    EL(g,cx+11+ax,6,3,3,C.gem);R(g,cx+10+ax,5,2,2,'#fff6d0');
   }else if(S.weapon==='claw'){
     for(let i=0;i<3;i++)R(g,cx+7+ax,22+i*2+bob,5,1,'#e8e0c8');
     R(g,cx+6+ax,21+bob,3,6,C.skinD);
@@ -1535,6 +1546,7 @@ function heroFire(h){
   const dmg=d.dmg*mult;
   h.atkT=.16;
   const a=h.aimA;
+  const mz=muzzleOf(h,a,16);
   if(d.hybrid){
     let near=null,nd=1e9;
     for(const e of G.ents){if(!isFoe(e))continue;
@@ -1542,14 +1554,14 @@ function heroFire(h){
     if(near){
       damage(near,dmg*1.4,'good');
       for(let i=0;i<8;i++){const aa=a+rnd(-.7,.7);
-        addPart(h.x+Math.cos(aa)*16,h.y-12+Math.sin(aa)*16,Math.cos(aa)*2.4,Math.sin(aa)*2.4,.22,d.shot.col2,2);}
+        addPart(mz.x+Math.cos(aa)*4,mz.y+Math.sin(aa)*4,Math.cos(aa)*2.4,Math.sin(aa)*2.4,.22,d.shot.col2,2);}
       SND.tone(240,.09,'sawtooth',.11,.6);
       return;
     }
   }
-  addShot(h.x+Math.cos(a)*12,h.y-14+Math.sin(a)*12,a,d.pspeed,dmg,
+  addShot(mz.x,mz.y,a,d.pspeed,dmg,
     (h.kind==='foe'||h.kind==='boss')?'bad':'good',d.shot);
-  for(let i=0;i<3;i++)addPart(h.x+Math.cos(a)*14,h.y-14+Math.sin(a)*14,
+  for(let i=0;i<3;i++)addPart(mz.x,mz.y,
     Math.cos(a)*rnd(.3,1.2)+rnd(-.5,.5),Math.sin(a)*rnd(.3,1.2)+rnd(-.5,.5),.2,d.shot.col,2);
   SND.shoot(d.shot.kind);
 }
@@ -1672,7 +1684,7 @@ function update(dt){
 }
 function autoAim(h){
   const t=nearestFoe(h.x,h.y,h.def.range*1.15);
-  if(t){h.aimA=Math.atan2((t.y-(t.sh||30)*.4)-(h.y-14),t.x-h.x);return true;}
+  if(t){h.aimA=Math.atan2(bodyY(t)-bodyY(h),t.x-h.x);return true;}
   return false;
 }
 function updateHero(h,dt,isMate){
@@ -1720,7 +1732,7 @@ function updateHero(h,dt,isMate){
       if(!autoAim(h)&&(mx||my))h.aimA=Math.atan2(my,mx);
       wantFire=true;
     }else if(mouse.used&&!IS_TOUCH){
-      h.aimA=Math.atan2((mouse.y+G.cam.sy)-(h.y-14),(mouse.x+G.cam.sx)-h.x);
+      h.aimA=Math.atan2((mouse.y+G.cam.sy)-bodyY(h),(mouse.x+G.cam.sx)-h.x);
     }else if(mx||my)h.aimA=Math.atan2(my,mx);
     wantFire=wantFire||mouse.down||!!keys['Space'];
     if((keys['ShiftLeft']||keys['ShiftRight']||keys['KeyE']||TCH.spec)&&h.specCd<=0)useSpecial(h);
@@ -1761,7 +1773,7 @@ function mateThink(m,dt){
     out.mx=Math.cos(a)*mv+Math.cos(a+1.57)*Math.sin(G.t*.8)*.45;
     out.my=Math.sin(a)*mv+Math.sin(a+1.57)*Math.sin(G.t*.8)*.45;
     m.aimA=a;
-    if(m.cool<=0&&bd<m.def.range*1.1&&los(m.x,m.y-14,tgt.x,tgt.y-12)){heroFire(m);m.cool=m.def.rate;}
+    if(m.cool<=0&&bd<m.def.range*1.1&&los(m.x,bodyY(m),tgt.x,bodyY(tgt))){heroFire(m);m.cool=m.def.rate;}
     if(m.specCd<=0&&(bd<95||m.hp<m.maxhp*.45))useSpecial(m);
   }else{
     const p=G.hero,d=Math.hypot(p.x-m.x,p.y-m.y);
@@ -1816,9 +1828,11 @@ function updateFoes(dt){
         mvx=Math.cos(a)*mv+Math.cos(a+1.57)*Math.sin(G.t*1.3+e.x)*.5;
         mvy=Math.sin(a)*mv+Math.sin(a+1.57)*Math.sin(G.t*1.3+e.x)*.5;
         e.cool-=dt;
-        if(e.cool<=0&&d<e.range&&los(e.x,e.y-10,target.x,target.y-12)){
+        if(e.cool<=0&&d<e.range&&los(e.x,bodyY(e),target.x,bodyY(target))){
           e.cool=e.rate*rnd(.85,1.2);e.atkT=.18;
-          addShot(e.x,e.y-12,Math.atan2((target.y-12)-(e.y-12),target.x-e.x)+rnd(-.07,.07),e.pspeed,e.dmg*.8,'bad',e.shot);
+          const aa=Math.atan2(bodyY(target)-bodyY(e),target.x-e.x)+rnd(-.07,.07);
+          const mz=muzzleOf(e,aa,14);
+          addShot(mz.x,mz.y,aa,e.pspeed,e.dmg*.8,'bad',e.shot);
           SND.tone(300,.09,'sawtooth',.06,.5);
         }
       }
@@ -1868,16 +1882,16 @@ function updateBoss(dt){
       msg('IL '+b.name+' EVOCA I SUOI SERVI!',2);
     }else if(b.ai.mode==='ring'){
       SND.spec();const n=14+b.ai.ph*4;
-      for(let i=0;i<n;i++)addShot(b.x,b.y-26,(i/n)*6.283+G.t*.4,2.3+b.ai.ph*.3,b.dmg*.55,'bad',{col:'#c9a6ff',col2:'#fff',r:4,kind:'orb'});
+      for(let i=0;i<n;i++){const aa=(i/n)*6.283+G.t*.4,mz=muzzleOf(b,aa,18);addShot(mz.x,mz.y,aa,2.3+b.ai.ph*.3,b.dmg*.55,'bad',{col:'#c9a6ff',col2:'#fff',r:4,kind:'orb'});}
       G.cam.shake=6;
     }else if(b.ai.mode==='spread'){
       const n=5+b.ai.ph*2;
-      for(let i=0;i<n;i++)addShot(b.x,b.y-26,a+(i-(n-1)/2)*.17,b.pspeed,b.dmg*.5,'bad',b.shot);
+      for(let i=0;i<n;i++){const aa=a+(i-(n-1)/2)*.17,mz=muzzleOf(b,aa,18);addShot(mz.x,mz.y,aa,b.pspeed,b.dmg*.5,'bad',b.shot);}
       b.atkT=.2;SND.shoot(b.shot.kind);
     }else if(b.ai.mode==='beam'){
       SND.spec();b.atkT=.3;
       for(let i=0;i<8;i++)setTimeout(()=>{if(b.dead||G.screen!=='play')return;
-        addShot(b.x,b.y-26,a+rnd(-.07,.07),4.6,b.dmg*.45,'bad',{col:'#ff9a70',col2:'#fff',r:3,kind:'bolt'});},i*80);
+        const aa=a+rnd(-.07,.07),mz=muzzleOf(b,aa,18);addShot(mz.x,mz.y,aa,4.6,b.dmg*.45,'bad',{col:'#ff9a70',col2:'#fff',r:3,kind:'bolt'});},i*80);
     }
   }
   let mvx=Math.cos(a),mvy=Math.sin(a);
@@ -1917,12 +1931,12 @@ function updateShots(dt){
     if(s.owner==='good'){
       for(const e of G.ents){
         if(!isFoe(e))continue;
-        if(Math.hypot(e.x-s.x,(e.y-(e.sh||30)*.5)-s.y)<e.r+s.r+4){damage(e,s.dmg,'good');hit=true;break;}
+        if(Math.hypot(e.x-s.x,bodyY(e)-s.y)<e.r+s.r+4){damage(e,s.dmg,'good');hit=true;break;}
       }
     }else{
       for(const h of[G.hero,G.mate]){
         if(h.down>0||h.inv>0||h.ghost>0||h.dead)continue;
-        if(Math.hypot(h.x-s.x,(h.y-14)-s.y)<h.r+s.r+3){damage(h,s.dmg,'bad');h.inv=.35;G.cam.shake=Math.max(G.cam.shake,4);hit=true;break;}
+        if(Math.hypot(h.x-s.x,bodyY(h)-s.y)<h.r+s.r+3){damage(h,s.dmg,'bad');h.inv=.35;G.cam.shake=Math.max(G.cam.shake,4);hit=true;break;}
       }
     }
     if(hit){boom(s.x,s.y,s.col,5,2);G.shots.splice(i,1);}
